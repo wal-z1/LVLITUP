@@ -1,49 +1,44 @@
 # LVLITUP
 
-Firefox extension for per-tab volume, EQ, balance, mono, limiting, loudness matching,
-mute, solo, and auto-ducking.
+Firefox extension for per-tab audio control.
 
 ## Features
 
-- Live per-tab levels, peaks, and volume control
-- Ten-band EQ, boost, balance, mono, limiter, and loudness matching
-- Native mute, solo, and optional auto-ducking
-- Saved site settings with light and dark theme support
+- Volume, boost, ten-band EQ, balance, mono, limiter, and loudness matching
+- Live levels and peak indicators
+- Mute, solo, and optional auto-ducking
+- Saved site settings
+- Light and dark themes
 - No accounts, telemetry, backend, or network requests
 
-## Install
+## Use temporarily
 
-For temporary local use, open `about:debugging#/runtime/this-firefox` in Firefox,
-choose **Load Temporary Add-on**, and select
-[`lvlitup/manifest.json`](lvlitup/manifest.json). Firefox removes temporary
-add-ons when it restarts.
+1. Open `about:debugging#/runtime/this-firefox` in Firefox.
+2. Select **Load Temporary Add-on**.
+3. Choose [`lvlitup/manifest.json`](lvlitup/manifest.json).
 
-For persistent installation, use a signed Firefox add-on package. The included XPI
-is unsigned and is intended for local packaging or testing, not permanent
-installation through **Install Add-on From File**.
+Temporary add-ons are removed when Firefox restarts.
 
-## Sign manually
+## Install permanently
 
-1. Build an archive with `.\scripts\package.ps1 -Version 1.0.0`.
-2. Create or sign in to a Mozilla Add-ons (AMO) developer account.
-3. Submit the generated XPI at <https://addons.mozilla.org/developers/addon/submit/>.
-4. Complete the AMO review, then download the signed XPI.
-5. In Firefox, open `about:addons`, select the gear menu, choose **Install Add-on
-   From File**, and select the signed XPI.
+1. Build the unsigned package:
 
-Firefox, not this repository, provides the release signature. Do not upload
-credentials or signing keys to the repository.
+   ```powershell
+   .\scripts\package.ps1 -Version 1.0.0
+   ```
 
-## Development
+2. Submit the XPI to [Mozilla Add-ons](https://addons.mozilla.org/developers/addon/submit/).
+3. Complete review and download the signed XPI.
+4. In Firefox, open `about:addons` > gear menu > **Install Add-on From File**.
+
+The included `releases/*-unsigned.xpi` cannot be installed permanently.
+
+## Build and validate
 
 ```powershell
 node .\lvlitup\test\validate.js
-.\scripts\package.ps1
+.\scripts\package.ps1 -Version 1.0.0
 ```
 
 `package.ps1` creates `releases/lvlitup-<version>-unsigned.xpi` from
-[`lvlitup/`](lvlitup/). Pass a version when needed:
-
-```powershell
-.\scripts\package.ps1 -Version 1.0.0
-```
+[`lvlitup/`](lvlitup/).
