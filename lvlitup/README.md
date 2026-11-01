@@ -9,11 +9,11 @@ Firefox extension for per-tab sound levels and control.
 - Firefox light, dark, and custom-theme aware UI
 - No accounts, telemetry, network requests, or remote code
 
-## Install
+## Install locally
 
-For normal Firefox, download the signed `.xpi` from the project’s GitHub Releases page. Open Firefox’s Add-ons Manager, choose the gear menu, select **Install Add-on From File**, and select the downloaded file.
+LVLITUP is local-only and deliberately unsigned. In Firefox, open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, then choose `lvlitup/manifest.json`.
 
-Signed releases are produced by the GitHub workflow after AMO unlisted-signing secrets are configured. The committed unsigned package is only for temporary/developer use because Firefox release builds reject unsigned extensions.
+Firefox's regular **Install Add-on From File** menu rejects unsigned `.xpi` files by design. The included `.xpi` is a local archive only; it is not intended for permanent installation or publishing.
 
 ## Source layout
 
@@ -26,13 +26,13 @@ Signed releases are produced by the GitHub workflow after AMO unlisted-signing s
 - `options/` contains persistent defaults and saved-site controls.
 - `scripts/package.ps1` packages the source without requiring npm or compilation.
 
-## Local package
+## Local archive
 
 ```powershell
 .\scripts\package.ps1
 ```
 
-The output is `releases/lvlitup-<version>-unsigned.xpi`.
+The output is `releases/lvlitup-<version>-unsigned.xpi`. Keep or inspect it locally, but load the manifest through `about:debugging` to use the extension.
 
 ## Development
 
@@ -41,8 +41,6 @@ cd lvlitup
 node test/validate.js
 npx web-ext lint --source-dir .
 ```
-
-Load `lvlitup/manifest.json` temporarily from `about:debugging#/runtime/this-firefox` while developing.
 
 ## Privacy
 
