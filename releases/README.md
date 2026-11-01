@@ -2,4 +2,10 @@
 
 `lvlitup-1.0.0-unsigned.xpi` is a local archive of the extension source.
 
-Firefox release builds reject unsigned add-ons from **Install Add-on From File**. To use LVLITUP locally, load `lvlitup/manifest.json` through `about:debugging#/runtime/this-firefox` instead. Temporary add-ons are removed when Firefox restarts.
+For temporary use, load `lvlitup/manifest.json` through
+`about:debugging#/runtime/this-firefox`; Firefox removes it when Firefox restarts.
+
+For permanent use, submit the XPI to
+[Mozilla Add-ons](https://addons.mozilla.org/developers/addon/submit/), complete
+review, download the signed XPI, and install it from `about:addons`. Firefox
+rejects this unsigned archive as a permanent installation.

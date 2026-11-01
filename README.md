@@ -22,6 +22,18 @@ For persistent installation, use a signed Firefox add-on package. The included X
 is unsigned and is intended for local packaging or testing, not permanent
 installation through **Install Add-on From File**.
 
+## Sign manually
+
+1. Build an archive with `.\scripts\package.ps1 -Version 1.0.0`.
+2. Create or sign in to a Mozilla Add-ons (AMO) developer account.
+3. Submit the generated XPI at <https://addons.mozilla.org/developers/addon/submit/>.
+4. Complete the AMO review, then download the signed XPI.
+5. In Firefox, open `about:addons`, select the gear menu, choose **Install Add-on
+   From File**, and select the signed XPI.
+
+Firefox, not this repository, provides the release signature. Do not upload
+credentials or signing keys to the repository.
+
 ## Development
 
 ```powershell
