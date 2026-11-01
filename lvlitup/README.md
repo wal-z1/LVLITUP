@@ -1,6 +1,6 @@
 # LVLITUP
 
-Minimal Firefox extension for per-tab sound levels and control.
+Firefox extension for per-tab sound levels and control.
 
 - Per-tab live level history and peak indication
 - Volume boost, ten-band EQ, balance, mono, limiter, and loudness matching
@@ -9,27 +9,32 @@ Minimal Firefox extension for per-tab sound levels and control.
 - Firefox light, dark, and custom-theme aware UI
 - No accounts, telemetry, network requests, or remote code
 
+## Install
+
+For normal Firefox, download the signed `.xpi` from the project’s GitHub Releases page. Open Firefox’s Add-ons Manager, choose the gear menu, select **Install Add-on From File**, and select the downloaded file.
+
+Signed releases are produced by the GitHub workflow after AMO unlisted-signing secrets are configured. The committed unsigned package is only for temporary/developer use because Firefox release builds reject unsigned extensions.
+
 ## Source layout
 
 - `content/main.js` contains the page-world audio engine and safe media routing.
 - `content/bridge.js` relays page-world messages to extension APIs.
 - `background/` owns tab state, ducking, solo, shortcuts, icons, and sidebar updates.
 - `shared/constants.js` contains the settings schema and audio helpers.
-- `sidebar/` contains the tab list, controls, sparkline renderer, and UI components.
+- `sidebar/` contains separate state, actions, components, icons, and sparkline modules.
 - `theme/` contains the Material 3 token baseline and Firefox theme integration.
-- `options/` contains compact persistent defaults and saved-site controls.
-- `test/` contains the audio fixture and local validation script.
+- `options/` contains persistent defaults and saved-site controls.
+- `scripts/package.ps1` packages the source without requiring npm or compilation.
 
-## Run
+## Local package
 
-Load `lvlitup/manifest.json` from `about:debugging#/runtime/this-firefox` using **Load Temporary Add-on**.
-
-```bash
-cd lvlitup
-npx web-ext run
+```powershell
+.\scripts\package.ps1
 ```
 
-## Test
+The output is `releases/lvlitup-<version>-unsigned.xpi`.
+
+## Development
 
 ```bash
 cd lvlitup
@@ -37,16 +42,7 @@ node test/validate.js
 npx web-ext lint --source-dir .
 ```
 
-Open `test/test-page.html` in Firefox to exercise media-element, Web Audio, and clipping sources.
-
-## Package
-
-```bash
-cd lvlitup
-npx web-ext build
-```
-
-Submit the produced archive as an unlisted AMO add-on for signing.
+Load `lvlitup/manifest.json` temporarily from `about:debugging#/runtime/this-firefox` while developing.
 
 ## Privacy
 
