@@ -1,25 +1,23 @@
 # LVLITUP
 
-Firefox extension for per-tab sound levels and control.
+Firefox extension for per-tab volume, EQ, balance, mono, limiting, loudness matching,
+mute, solo, and auto-ducking.
 
 ## Features
 
-- Per-tab live level history and peak indication
-- Volume boost, ten-band EQ, balance, mono, limiter, and loudness matching
-- Native per-tab mute, solo, and optional auto-duck
-- Site-specific remembered settings stored locally
-- Firefox light, dark, and custom-theme aware UI
+- Live per-tab levels, peaks, and volume control
+- Ten-band EQ, boost, balance, mono, limiter, and loudness matching
+- Native mute, solo, and optional auto-ducking
+- Saved site settings with light and dark theme support
+- No accounts, telemetry, backend, or network requests
 
-LVLITUP has no accounts, telemetry, backend, or network requests. Settings remain in
-Firefox extension storage on the device.
+## Install
 
-## Install locally
+For local testing, open `about:debugging#/runtime/this-firefox` in Firefox, choose
+**Load Temporary Add-on**, and select [`lvlitup/manifest.json`](lvlitup/manifest.json).
 
-In Firefox, open `about:debugging#/runtime/this-firefox`, select **Load Temporary
-Add-on**, and choose [`lvlitup/manifest.json`](lvlitup/manifest.json).
-
-The included XPI is an unsigned local archive. It is available in
-[`releases/`](releases/) and is also attached to the GitHub release.
+Download the unsigned local archive from the
+[latest release](https://github.com/wal-z1/LVLITUP/releases/latest).
 
 ## Development
 
@@ -28,4 +26,4 @@ node .\lvlitup\test\validate.js
 .\scripts\package.ps1
 ```
 
-The source implementation is in [`lvlitup/`](lvlitup/).
+The extension source is in [`lvlitup/`](lvlitup/).

@@ -1,6 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LVLITUP", "version": "1.0.0", "description": "Per-tab sound levels & control",
+  "name": "LVLITUP", "version": "1.0.0", "description": "Per-tab volume, EQ, balance, mute, solo, and auto-ducking",
+  "homepage_url": "https://github.com/wal-z1/LVLITUP",
+  "developer": {"name": "wal-z1", "url": "https://github.com/wal-z1"},
   "permissions": ["tabs", "storage", "theme"], "host_permissions": ["<all_urls>"],
   "browser_specific_settings": {"gecko": {"id": "lvlitup@example.local", "strict_min_version": "140.0", "data_collection_permissions": {"required": ["none"]}}},
   "background": {"scripts": ["shared/constants.js", "background/state.js", "background/ducking.js", "background/solo.js", "background/icon.js", "background/commands.js", "background/hub.js", "background/background.js"]},
