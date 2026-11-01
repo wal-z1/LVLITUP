@@ -1,6 +1,23 @@
+# Dependencies and local tooling
 node_modules/
 web-ext-artifacts/
+.venv/
+venv/
+
+# Generated extension packages (the release XPI is tracked explicitly below)
 *.xpi
 *.zip
-.DS_Store
 !releases/*.xpi
+
+# Local editor and operating-system files
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment and debug output
+.env
+.env.*
+!.env.example
+*.log

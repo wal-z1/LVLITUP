@@ -13,11 +13,14 @@ mute, solo, and auto-ducking.
 
 ## Install
 
-For local testing, open `about:debugging#/runtime/this-firefox` in Firefox, choose
-**Load Temporary Add-on**, and select [`lvlitup/manifest.json`](lvlitup/manifest.json).
+For temporary local use, open `about:debugging#/runtime/this-firefox` in Firefox,
+choose **Load Temporary Add-on**, and select
+[`lvlitup/manifest.json`](lvlitup/manifest.json). Firefox removes temporary
+add-ons when it restarts.
 
-Download the unsigned local archive from the
-[latest release](https://github.com/wal-z1/LVLITUP/releases/latest).
+For persistent installation, use a signed Firefox add-on package. The included XPI
+is unsigned and is intended for local packaging or testing, not permanent
+installation through **Install Add-on From File**.
 
 ## Development
 
@@ -26,4 +29,9 @@ node .\lvlitup\test\validate.js
 .\scripts\package.ps1
 ```
 
-The extension source is in [`lvlitup/`](lvlitup/).
+`package.ps1` creates `releases/lvlitup-<version>-unsigned.xpi` from
+[`lvlitup/`](lvlitup/). Pass a version when needed:
+
+```powershell
+.\scripts\package.ps1 -Version 1.0.0
+```
