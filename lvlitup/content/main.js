@@ -1,0 +1,32 @@
+(() => {
+  "use strict";
+  const TYPE="LVLITUP:"; let settings={volume:1,eq:Array(10).fill(0),balance:0,mono:false,limiter:true,loudness:false}, duckDb=0, bandsOn=false, dead=false;
+  const buses=new Set(), elements=new WeakSet(); let playing=0, timer=0;
+  const post=(kind,data={})=>{ if(!dead) window.postMessage({type:TYPE+kind,data},"*") };
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
+  function param(p,v,t=.02){try{p.setTargetAtTime(v,p.context.currentTime,t)}catch(_){}}
+  function curve(){let n=2048,a=new Float32Array(n);for(let i=0;i<n;i++){let x=i/(n-1)*2-1,ax=Math.abs(x);a[i]=ax<.85?x:Math.sign(x)*(.85+.15*Math.tanh((ax-.85)*6)/Math.tanh(.9));}return a}
+  function Bus(ctx,source){
+    this.ctx=ctx; this.source=source; this.input=ctx.createGain(); this.loud=ctx.createGain(); this.mono=ctx.createGain(); this.stereo=ctx.createGain(); this.eq=[];
+    this.split=ctx.createChannelSplitter(2); this.merge=ctx.createChannelMerger(2); this.pan=ctx.createStereoPanner(); this.volume=ctx.createGain(); this.duck=ctx.createGain(); this.pre=ctx.createAnalyser(); this.comp=ctx.createDynamicsCompressor(); this.clip=ctx.createWaveShaper(); this.bypass=ctx.createGain(); this.limited=ctx.createGain(); this.post=ctx.createAnalyser(); this.band=ctx.createAnalyser(); this.weight=ctx.createAnalyser();
+    this.pre.fftSize=this.post.fftSize=4096; this.band.fftSize=2048; this.band.smoothingTimeConstant=.75; this.weight.fftSize=2048;
+    this.comp.threshold.value=-2;this.comp.knee.value=0;this.comp.ratio.value=20;this.comp.attack.value=.002;this.comp.release.value=.12;this.clip.curve=curve();this.clip.oversample="2x";
+    source.connect(this.input); this.input.connect(this.loud); this.input.connect(this.band); let hp=ctx.createBiquadFilter(), hs=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=60;hs.type="highshelf";hs.frequency.value=1500;hs.gain.value=4;this.input.connect(hp);hp.connect(hs);hs.connect(this.weight);
+    this.loud.connect(this.stereo); this.loud.connect(this.mono); this.mono.channelCount=1;this.mono.channelCountMode="explicit";this.mono.channelInterpretation="speakers";
+    this.stereo.connect(this.split);this.mono.connect(this.split);this.split.connect(this.merge,0,0);this.split.connect(this.merge,0,1);
+    let last=this.merge; [31,62,125,250,500,1000,2000,4000,8000,16000].forEach((f,i)=>{let q=ctx.createBiquadFilter();q.type=i===0?"lowshelf":i===9?"highshelf":"peaking";q.frequency.value=f;q.Q.value=1.41;last.connect(q);last=q;this.eq.push(q)});
+    last.connect(this.pan);this.pan.connect(this.volume);this.volume.connect(this.duck);this.duck.connect(this.pre);this.pre.connect(this.comp);this.comp.connect(this.clip);this.clip.connect(this.limited);this.pre.connect(this.bypass);this.limited.connect(this.post);this.bypass.connect(this.post); this.limited.gain.value=1;this.bypass.gain.value=0;
+    buses.add(this); this.apply();
+  }
+  Bus.prototype.apply=function(){let c=this.ctx,t=c.currentTime;param(this.volume.gain,settings.volume);param(this.duck.gain,Math.pow(10,duckDb/20),duckDb<0?.05:.25);param(this.pan.pan,settings.balance);this.eq.forEach((x,i)=>param(x.gain,settings.eq[i]));this.mono.gain.cancelScheduledValues(t);this.stereo.gain.cancelScheduledValues(t);this.mono.gain.linearRampToValueAtTime(settings.mono?1:0,t+.02);this.stereo.gain.linearRampToValueAtTime(settings.mono?0:1,t+.02);this.limited.gain.linearRampToValueAtTime(settings.limiter?1:0,t+.02);this.bypass.gain.linearRampToValueAtTime(settings.limiter?0:1,t+.02)};
+  Bus.prototype.connect=function(dest){this.post.connect(dest)};
+  function sample(){if(!playing)return;let best={rmsDb:-100,peakDb:-100,prePeakDb:-100,gr:0,bands:null,playing:true};buses.forEach(b=>{let a=new Float32Array(b.post.fftSize),p=new Float32Array(b.pre.fftSize);b.post.getFloatTimeDomainData(a);b.pre.getFloatTimeDomainData(p);let sum=0,peak=0,pre=0;for(let x of a){sum+=x*x;peak=Math.max(peak,Math.abs(x))}for(let x of p)pre=Math.max(pre,Math.abs(x));let rms=20*Math.log10(Math.max(1e-8,Math.sqrt(sum/a.length)));if(rms>best.rmsDb){best.rmsDb=rms;best.peakDb=20*Math.log10(Math.max(1e-8,peak));best.prePeakDb=20*Math.log10(Math.max(1e-8,pre));best.gr=b.comp.reduction;if(bandsOn){let d=new Float32Array(b.band.frequencyBinCount);b.band.getFloatFrequencyData(d);best.bands=[31,62,125,250,500,1000,2000,4000,8000,16000].map(f=>d[Math.min(d.length-1,Math.round(f/(b.ctx.sampleRate/b.band.fftSize)))]);}}});post("levels",best);}
+  function start(){if(!timer)timer=setInterval(sample,50)} function stop(){if(timer){clearInterval(timer);timer=0}post("idle")}
+  async function hook(el){if(elements.has(el)||buses.size>=20)return; if(el.mediaKeys||(el.currentSrc&&/^https?:/.test(el.currentSrc)&&new URL(el.currentSrc,location.href).origin!==location.origin&&!el.crossOrigin)){limited(el);return}let c=new AudioContext();try{await Promise.race([c.resume(),new Promise(r=>setTimeout(r,300))]);if(c.state!=="running")return;let src=c.createMediaElementSource(el),b=new Bus(c,src);b.connect(c.destination);elements.add(el);post("engine",{mode:"graph"});}catch(_){limited(el)}}
+  function limited(el){if(elements.has(el))return;elements.add(el);let native=el.volume,factor=settings.volume;try{Object.defineProperty(el,"volume",{configurable:true,get(){return native},set(v){native=clamp(v,0,1);el.__proto__.volume=native*factor}})}catch(_){}post("engine",{mode:"limited",reason:"protected or already routed"})}
+  document.addEventListener("playing",e=>{playing++;hook(e.target);start()},{capture:true}); document.addEventListener("pause",()=>{playing=Math.max(0,playing-1);if(!playing)stop()},{capture:true});
+  const originalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){let p=originalPlay.apply(this,arguments);Promise.resolve(p).then(()=>hook(this)).catch(()=>{});return p};
+  window.addEventListener("message",e=>{if(e.source!==window||!e.data||typeof e.data.type!=="string"||!e.data.type.startsWith(TYPE))return;let d=e.data.data||{};if(e.data.type===TYPE+"apply"){settings=Object.assign(settings,d.settings||{});buses.forEach(b=>b.apply())}if(e.data.type===TYPE+"duck"){duckDb=clamp(d.db,-30,0);buses.forEach(b=>b.apply())}if(e.data.type===TYPE+"bands")bandsOn=!!d.on;if(e.data.type===TYPE+"needHello")hello()});
+  function hello(){post("hello",{isTop:top===window,url:location.href})} hello();
+  addEventListener("pagehide",()=>stop());addEventListener("pageshow",()=>{if(playing)start()});
+})();

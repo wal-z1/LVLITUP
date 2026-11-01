@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "LVLITUP", "version": "1.0.0", "description": "Per-tab sound levels & control",
+  "permissions": ["tabs", "storage", "theme"], "host_permissions": ["<all_urls>"],
+  "browser_specific_settings": {"gecko": {"id": "lvlitup@example.local", "strict_min_version": "140.0", "data_collection_permissions": {"required": ["none"]}}},
+  "background": {"scripts": ["shared/constants.js", "background/state.js", "background/ducking.js", "background/solo.js", "background/icon.js", "background/commands.js", "background/hub.js", "background/background.js"]},
+  "content_scripts": [
+    {"matches":["<all_urls>"],"js":["content/main.js"],"run_at":"document_start","all_frames":true,"match_about_blank":true,"world":"MAIN"},
+    {"matches":["<all_urls>"],"js":["content/bridge.js"],"run_at":"document_start","all_frames":true,"match_about_blank":true}
+  ],
+  "action":{"default_title":"LVLITUP","theme_icons":[{"light":"icons/icon-light.svg","dark":"icons/icon-dark.svg","size":16}]},
+  "sidebar_action":{"default_title":"LVLITUP","default_panel":"sidebar/sidebar.html"},
+  "options_ui":{"page":"options/options.html","open_in_tab":false},
+  "commands":{"_execute_sidebar_action":{"suggested_key":{"default":"Alt+Shift+L"},"description":"Toggle sidebar"},"volume_up":{"suggested_key":{"default":"Alt+Shift+Up"},"description":"Increase active tab volume"},"volume_down":{"suggested_key":{"default":"Alt+Shift+Down"},"description":"Decrease active tab volume"},"mute":{"suggested_key":{"default":"Alt+Shift+M"},"description":"Mute active tab"},"solo":{"suggested_key":{"default":"Alt+Shift+S"},"description":"Solo active tab"}},
+  "icons":{"16":"icons/icon.svg","32":"icons/icon.svg","48":"icons/icon.svg"}
+}
