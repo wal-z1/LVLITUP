@@ -3,3 +3,4 @@ web-ext-artifacts/
 *.xpi
 *.zip
 .DS_Store
+!releases/*.xpi
